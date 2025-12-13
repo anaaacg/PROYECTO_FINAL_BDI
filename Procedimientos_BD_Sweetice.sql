@@ -1,47 +1,30 @@
 use Sweetice
 go
 --procedimientos:
-ALTER PROCEDURE ActualizarestadoEmpleado
-    @ID_Empleado INT,
-    @NuevoEstado NVARCHAR(50)
-AS
-BEGIN
-    update Empleado
-    set Estado = @NuevoEstado
-    where ID_Empleado = @ID_Empleado;
-    
-    select 'Estado actualizado' as Mensaje;
-end
 
---==========================================================================================================================
---Nombre:Adrian 
--- Fecha 31/11
--- Descripcion : Actualiza el estado del empleado reciviendo el id y el nuevo estado del empleados y con un set se actualiza
---===========================================================================================================================
-go
-
-alter procedure MostrarTodosClientes
+create procedure sp_registrarcliente
+    @nombre nvarchar(100),
+    @apellido nvarchar(100),
+    @telefono int,
+    @email nvarchar(255),
+    @tipo_cliente nvarchar(50) = 'regular'
 as
-begin 
-    select 
-        ID_Cliente,
-        Nombre,
-        Apellido,
-        Telefono,
-        Email,
-        Fecha_Registro,
-        Tipo_Cliente
-    FROM Cliente
-    order by Nombre;
-END
+begin
+    insert into cliente (nombre, apellido, telefono, email, fecha_registro, tipo_cliente, activo)
+    values (@nombre, @apellido, @telefono, @email, getdate(), @tipo_cliente, 1);
+    select 'cliente registrau' Mensaje;
+end;
 --==========================================================================================================================
 --Nombre:Adrian 
 -- Fecha 31/11
--- Descripcion : Solo muestra los clientes sin recibir algun parametro 
+-- Descripcion : lo mismo que el de venta pero se registra el lciente
 --===========================================================================================================================
+
+
+
 go
 
-alter procedure mostrarclientecompras
+create procedure mostrarclientecompras
     @id_cliente int
 as
 begin
@@ -65,7 +48,7 @@ begin
 end;
 
 --==========================================================================================================================
---Nombre:Adrian 
+--Nombre:Adrian Rada
 -- Fecha 31/11
 -- Descripcion : Muestra la compra de los clientes el primer select cuenta las compras totales, la segunda muestra la suma ya el tercero
 --                hice un inner join para conectar sucursal con las ventas de secursal 
@@ -73,7 +56,7 @@ end;
 
 go
 
-alter PROCEDURE sp_RegistrarVenta
+create PROCEDURE sp_RegistrarVenta
     @ID_Empleado   INT,
     @ID_Sucursal   INT,
     @ID_Cliente    INT,
@@ -105,47 +88,7 @@ GO
 --===========================================================================================================================
 go
 
-alter procedure sp_registrarcliente
-    @nombre nvarchar(100),
-    @apellido nvarchar(100),
-    @telefono int,
-    @email nvarchar(255),
-    @tipo_cliente nvarchar(50) = 'regular'
-as
-begin
-    insert into cliente (nombre, apellido, telefono, email, fecha_registro, tipo_cliente, activo)
-    values (@nombre, @apellido, @telefono, @email, getdate(), @tipo_cliente, 1);
-    select 'cliente registrau' Mensaje;
-end;
---==========================================================================================================================
---Nombre:Adrian 
--- Fecha 31/11
--- Descripcion : lo mismo que el de venta pero se registra el lciente
---===========================================================================================================================
-
-go
-
-alter procedure consultarinventario
-as
-begin
-    select 
-        s.nombre as sucursal,
-        i.nombre as insumo,
-        inv.cantidad,
-        i.unidadmedida
-    from inventariosucursal inv
-    inner join sucursal s on inv.id_sucursal = s.id_sucursal
-   inner  join insumo i on inv.id_insumo = i.id_insumo
-    order by s.nombre, i.nombre;
-end;
---==========================================================================================================================
---Nombre:Adrian 
--- Fecha 31/11
--- Descripcion : muestra los insumas (inventario) con su cantidad
-
-go
-
-alter procedure sumarinventario
+create procedure sumarinventario
     @id_sucursal int,
     @id_insumo int,
     @cantidad int,
@@ -163,33 +106,36 @@ begin
     end
 end
 --==========================================================================================================================
---Nombre:Adrian 
+--Nombre:Ana
 -- Fecha 1/12
 -- Descripcion : suma al inventario insumos siempre y cuando enexist y actualiza el invetario de sucursal cantodad = cantidad + @cantidad
 --===========================================================================================================================
+
 go
 
-alter procedure buscar_cliente
-    @nombre nvarchar(100)
+create procedure consultarinventario
 as
 begin
     select 
-        id_cliente,
-        nombre + ' ' + apellido as nombrecompleto,
-        telefono,
-        email
-    from cliente
-    where nombre like '%' + @nombre + '%'
-       or apellido like '%' + @nombre + '%'
-end
-go
+        s.nombre as sucursal,
+        i.nombre as insumo,
+        inv.cantidad,
+        i.unidadmedida
+    from inventariosucursal inv
+    inner join sucursal s on inv.id_sucursal = s.id_sucursal
+   inner  join insumo i on inv.id_insumo = i.id_insumo
+    order by s.nombre, i.nombre;
+end;
 --==========================================================================================================================
---Nombre:Adrian 
--- Fecha 1/12
--- Descripcion : Buscar cliente con nombre
+--Nombre:Ana
+-- Fecha 31/11
+-- Descripcion : muestra los insumas (inventario) con su cantidad
 --===========================================================================================================================
 
-alter procedure ventas_hoy
+go
+
+
+create procedure ventas_hoy
 as
 begin
     select 
@@ -203,14 +149,38 @@ begin
 end
 
 --==========================================================================================================================
---Nombre:Adrian 
+--Nombre:Ana 
 -- Fecha 1/12
 -- Descripcion : ver ventas en el dia
+--===========================================================================================================================
+go
+
+create procedure CierreCajaDiario
+    @ID_Caja int,
+    @MontoFinal float
+as
+Begin
+
+    
+    update Caja
+    set
+        FechaCierre = GETDATE(),
+        MontoFinal = @MontoFinal,
+        Estado = 'Cerrada'
+    where ID_Caja = @ID_Caja;
+    
+    select 'Caja cerrada' Mensaje;
+end
+
+--==========================================================================================================================
+--Nombre:Ana 
+-- Fecha 1/12
+-- Descripcion : abre y cierra la caja al dia con el id y el monto (suponiendo que lo contamos en fisico) y la actualiza el estado y fecha
 --===========================================================================================================================
 
 go
 
-alter procedure empleados_sucursal
+create procedure empleados_sucursal
     @id_sucursal int
 as
 begin
@@ -230,30 +200,65 @@ end
 -- Descripcion : Ver empleados por sucursal
 --===========================================================================================================================
 
-
 go
 
-alter procedure CierreCajaDiario
-    @ID_Caja int,
-    @MontoFinal float
-as
-Begin
-
+create PROCEDURE ActualizarestadoEmpleado
+    @ID_Empleado INT,
+    @NuevoEstado NVARCHAR(50)
+AS
+BEGIN
+    update Empleado
+    set Estado = @NuevoEstado
+    where ID_Empleado = @ID_Empleado;
     
-    update Caja
-    set
-        FechaCierre = GETDATE(),
-        MontoFinal = @MontoFinal,
-        Estado = 'Cerrada'
-    where ID_Caja = @ID_Caja;
-    
-    select 'Caja cerrada' Mensaje;
+    select 'Estado actualizado' as Mensaje;
 end
 
 --==========================================================================================================================
 --Nombre:Adrian 
--- Fecha 1/12
--- Descripcion : abre y cierra la caja al dia con el id y el monto (suponiendo que lo contamos en fisico) y la actualiza el estado y fecha
+-- Fecha 31/11
+-- Descripcion : Actualiza el estado del empleado reciviendo el id y el nuevo estado del empleados y con un set se actualiza
+--===========================================================================================================================
+go   
+
+create procedure MostrarTodosClientes
+as
+begin 
+    select 
+        ID_Cliente,
+        Nombre,
+        Apellido,
+        Telefono,
+        Email,
+        Fecha_Registro,
+        Tipo_Cliente
+    FROM Cliente
+    order by Nombre;
+END
+--==========================================================================================================================
+--Nombre:Ana Cabrera
+-- Fecha 31/11
+-- Descripcion : Solo muestra los clientes sin recibir algun parametro 
 --===========================================================================================================================
 
-    
+go
+create procedure buscar_cliente
+    @nombre nvarchar(100)
+as
+begin
+    select 
+        id_cliente,
+        nombre + ' ' + apellido as nombrecompleto,
+        telefono,
+        email
+    from cliente
+    where nombre like '%' + @nombre + '%'
+       or apellido like '%' + @nombre + '%'
+end
+go
+--==========================================================================================================================
+--Nombre:Adrian 
+-- Fecha 1/12
+-- Descripcion : Buscar cliente con nombre
+--===========================================================================================================================
+
