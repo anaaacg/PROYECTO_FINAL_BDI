@@ -43,3 +43,7 @@ Diseñar e implementar una base de datos relacional que permita a la heladería 
 ## Diagrama Entidad-relacion:
 https://lucid.app/lucidchart/65c943ff-4cda-4047-af0b-2abf8f27b615/edit?viewport_loc=173%2C322%2C2167%2C1017%2C0_0&invitationId=inv_8952c499-0e28-4c59-a48d-37f2ec1ee017
 
+## Diapositiva
+https://gamma.app/docs/Documentacion-Tecnica-y-Funcional-de-la-Heladeria-Sweetice-ovnj0dysgfpz1ew
+
+
